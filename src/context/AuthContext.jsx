@@ -48,7 +48,9 @@ export const AuthProvider = ({ children }) => {
       navigate('/');
       return data;
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed');
+      const errorMessage = err.response?.data?.message || 'Registration failed';
+      console.error('Registration failed:', errorMessage);
+      setError(errorMessage);
       setLoading(false);
       throw err;
     }

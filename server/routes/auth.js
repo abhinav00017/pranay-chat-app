@@ -31,7 +31,7 @@ router.post('/register', async (req, res) => {
       email,
       password
     });
-    
+    console.log(user);
     if (user) {
       res.status(201).json({
         _id: user._id,
