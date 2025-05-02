@@ -9,6 +9,8 @@ import userRoutes from './routes/users.js';
 import chatRoutes from './routes/chats.js';
 import messageRoutes from './routes/messages.js';
 import { verifyToken } from './middleware/auth.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 // Load environment variables
 dotenv.config();
@@ -17,9 +19,19 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.use(express.static(path.join(__dirname, '../dist')));
+
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Fallback for any route not handled by the backend
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../dist/index.html'));
+});
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)
@@ -31,6 +43,14 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/chats', verifyToken, chatRoutes);
 app.use('/api/messages', verifyToken, messageRoutes);
+
+// Serve static files from the frontend build folder
+app.use(express.static(path.join(__dirname, '../dist')));
+
+// Fallback for any route not handled by the backend
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../dist/index.html'));
+});
 
 // Initialize Socket.io
 const io = new Server(server, {
